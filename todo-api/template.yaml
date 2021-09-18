@@ -11,11 +11,11 @@ Globals:
     Timeout: 3
 
 Resources:
-  TodoListFunction:
+  TodoServiceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: todo_api/
-      Handler: todo_list.lambda_handler
+      Handler: todo_service.lambda_handler
       Runtime: python3.9
       Events:
         TodoList:
@@ -23,17 +23,22 @@ Resources:
           Properties:
             Path: /todos
             Method: get
+        TodoDetail:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /todos/{id}
+            Method: get
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  TodoListApi:
+  TodoServiceApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/todos/"
-  TodoListFunction:
-    Description: "TodoList Lambda Function ARN"
-    Value: !GetAtt TodoListFunction.Arn
-  TodoListFunctionIamRole:
+  TodoServiceFunction:
+    Description: "TodoService Lambda Function ARN"
+    Value: !GetAtt TodoServiceFunction.Arn
+  TodoServiceFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt TodoListFunctionRole.Arn
+    Value: !GetAtt TodoServiceFunctionRole.Arn

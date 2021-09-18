@@ -1,6 +1,12 @@
 import json
 
-from todos import TODO_DATA
+import todo_service.todo_detail
+import todo_service.todo_list
+
+routes = {
+    ('GET', '/todos'): todo_list.lambda_handler,
+    ('GET', '/todos/{id}'): todo_detail.lambda_handler,
+}
 
 
 def lambda_handler(event, context):
@@ -25,9 +31,18 @@ def lambda_handler(event, context):
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "data": TODO_DATA,
-        }),
-    }
+    request_context = event['requestContext']
+    path = request_context['resourcePath']
+    http_method = request_context['httpMethod']
+    try:
+        return routes[(http_method, path)](event, context)
+    except:
+        return {
+            "statusCode": 404,
+            "body": json.dumps({
+                "message": "not found",
+                'path': path,
+                'httpMethod': http_method,
+                'requestContext': request_context,
+            })
+        }
