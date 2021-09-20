@@ -1,9 +1,9 @@
 import json
 
-from todo_service.todos import TODO_DATA
+from todo_service.repository import AbstractTodoRepository
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, context, todo_repository: AbstractTodoRepository):
     """Sample pure Lambda function
 
     Parameters
@@ -28,6 +28,6 @@ def lambda_handler(event, context):
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "data": TODO_DATA,
+            "data": todo_repository.get_list(),
         }),
     }

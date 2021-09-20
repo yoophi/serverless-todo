@@ -1,16 +1,9 @@
 import json
 
-from todo_service.todos import TODO_DATA
+from todo_service.repository import AbstractTodoRepository
 
 
-def get_todo(todo_id):
-    try:
-        return next(todo for todo in TODO_DATA if todo['id'] == int(todo_id))
-    except StopIteration:
-        return None
-
-
-def lambda_handler(event, context):
+def lambda_handler(event, context, todo_repository: AbstractTodoRepository):
     """Sample pure Lambda function
 
     Parameters
@@ -33,7 +26,7 @@ def lambda_handler(event, context):
     """
 
     todo_id = event['pathParameters']['id']
-    todo = get_todo(todo_id)
+    todo = todo_repository.get(todo_id)
     if not todo:
         return {
             "statusCode": 404,

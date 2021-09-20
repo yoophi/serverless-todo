@@ -2,6 +2,8 @@ import json
 
 import todo_service.todo_detail
 import todo_service.todo_list
+from todo_service.repository import MemTodoRepository
+from todo_service.todos import TODO_DATA
 
 routes = {
     ('GET', '/todos'): todo_list.lambda_handler,
@@ -34,8 +36,9 @@ def lambda_handler(event, context):
     request_context = event['requestContext']
     path = request_context['resourcePath']
     http_method = request_context['httpMethod']
+    todo_repository = MemTodoRepository(TODO_DATA)
     try:
-        return routes[(http_method, path)](event, context)
+        return routes[(http_method, path)](event, context, todo_repository=todo_repository)
     except:
         return {
             "statusCode": 404,
