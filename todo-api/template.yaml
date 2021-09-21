@@ -15,7 +15,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: todo_api/
-      Handler: todo_service.lambda_handler
+      Handler: todo_service.entrypoints.aws.lambda_handler
       Runtime: python3.9
       Events:
         TodoList:

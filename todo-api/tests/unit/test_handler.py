@@ -4,6 +4,8 @@ import pytest
 
 from hello_world import app
 
+import todo_service.entrypoints.aws
+
 
 @pytest.fixture()
 def apigw_event():
@@ -64,7 +66,7 @@ def apigw_event():
 
 def test_lambda_handler(apigw_event, mocker):
 
-    ret = app.lambda_handler(apigw_event, "")
+    ret = todo_service.entrypoints.aws.lambda_handler(apigw_event, "")
     data = json.loads(ret["body"])
 
     assert ret["statusCode"] == 200
