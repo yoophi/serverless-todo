@@ -1,13 +1,15 @@
 import json
 
-import todo_service.todo_detail
-import todo_service.todo_list
+from todo_service import todo_create, todo_update, todo_delete, todo_list, todo_detail
 from todo_service.repository import MemTodoRepository
 from todo_service.todos import TODO_DATA
 
 routes = {
     ('GET', '/todos'): todo_list.lambda_handler,
     ('GET', '/todos/{id}'): todo_detail.lambda_handler,
+    ('POST', '/todos'): todo_create.lambda_handler,
+    ('PUT', '/todos/{id}'): todo_update.lambda_handler,
+    ('DELETE', '/todos/{id}'): todo_delete.lambda_handler,
 }
 
 
