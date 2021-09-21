@@ -1,1 +1,2 @@
 requests
+dependency-injector==4.36.0

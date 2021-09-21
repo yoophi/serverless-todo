@@ -8,7 +8,9 @@ class AbstractTodoRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_list(self, ):
+    def get_list(
+        self,
+    ):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -30,9 +32,9 @@ class MemTodoRepository(AbstractTodoRepository):
             raise ValueError
 
         todo = {
-            'id': str(uuid.uuid4()),
-            'title': title,
-            'completed': False,
+            "id": str(uuid.uuid4()),
+            "title": title,
+            "completed": False,
         }
         self.todos.append(todo)
         return todo
@@ -42,28 +44,30 @@ class MemTodoRepository(AbstractTodoRepository):
         if todo is None:
             return None
 
-        todo['title'] = title
+        todo["title"] = title
         self.todos = [
-            todo if str(item['id']) == str(todo_id) else item
-            for item in self.todos
+            todo if str(item["id"]) == str(todo_id) else item for item in self.todos
         ]
 
         return todo
 
     def delete(self, todo_id):
-        self.todos = list(filter(
-            lambda obj: str(obj['id']) != str(todo_id),
-            self.todos
-        ))
+        self.todos = list(
+            filter(lambda obj: str(obj["id"]) != str(todo_id), self.todos)
+        )
 
     def __init__(self, todos):
+        print("initializing MemTodoRepository")
+        print("todos", todos)
         self.todos = todos
 
     def get(self, todo_id):
         try:
-            return next(todo for todo in self.todos if str(todo['id']) == str(todo_id))
+            return next(todo for todo in self.todos if str(todo["id"]) == str(todo_id))
         except StopIteration:
             return None
 
-    def get_list(self, ):
+    def get_list(
+        self,
+    ):
         return self.todos
