@@ -9,7 +9,7 @@ class AbstractTodoRepository(abc.ABC):
 
     @abc.abstractmethod
     def get_list(
-        self,
+            self,
     ):
         raise NotImplementedError
 
@@ -27,6 +27,9 @@ class AbstractTodoRepository(abc.ABC):
 
 
 class MemTodoRepository(AbstractTodoRepository):
+    def __init__(self, todos):
+        self.todos = todos
+
     def create(self, title=None):
         if title is None:
             raise ValueError
@@ -56,11 +59,6 @@ class MemTodoRepository(AbstractTodoRepository):
             filter(lambda obj: str(obj["id"]) != str(todo_id), self.todos)
         )
 
-    def __init__(self, todos):
-        print("initializing MemTodoRepository")
-        print("todos", todos)
-        self.todos = todos
-
     def get(self, todo_id):
         try:
             return next(todo for todo in self.todos if str(todo["id"]) == str(todo_id))
@@ -68,6 +66,6 @@ class MemTodoRepository(AbstractTodoRepository):
             return None
 
     def get_list(
-        self,
+            self,
     ):
         return self.todos
