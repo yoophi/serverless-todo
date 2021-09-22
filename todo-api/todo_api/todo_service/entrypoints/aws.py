@@ -1,10 +1,11 @@
 import json
+import os
 import sys
 
 from dependency_injector import containers, providers
 from dependency_injector.wiring import inject, Provide
 
-from todo_service.repository import AbstractTodoRepository, MemTodoRepository
+from todo_service.repository import AbstractTodoRepository, MemTodoRepository, DynamoDBRepository
 from todo_service.todos import TODO_DATA
 
 
@@ -12,8 +13,9 @@ class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
 
     todo_repository = providers.Factory(
-        MemTodoRepository,
-        todos=config.initial_todos,
+        DynamoDBRepository,
+        table_name=config.table_name,
+        is_local=config.is_local,
     )
 
 
@@ -118,7 +120,12 @@ def lambda_handler(event, context):
     http_method = request_context["httpMethod"]
 
     container = Container()
-    container.config.from_dict({"initial_todos": TODO_DATA})
+    is_local = os.environ.get('AWS_SAM_LOCAL') == 'true'
+    container.config.from_dict({
+        "initial_todos": TODO_DATA,
+        "is_local": is_local,
+        "table_name": os.environ.get('TABLE_NAME') if not is_local else 'TodoTable',
+    })
     container.wire(modules=[sys.modules[__name__]])
 
     routes = {
