@@ -1,14 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  todo-api
-
   Sample SAM Template for todo-api
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 3
+    Environment:
+      Variables:
+        TABLE_NAME: !Select [1, !Split ['/', !GetAtt TodoTable.Arn]]
 
 Resources:
   TodoServiceFunction:
@@ -17,6 +18,9 @@ Resources:
       CodeUri: todo_api/
       Handler: todo_service.entrypoints.aws.lambda_handler
       Runtime: python3.9
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodoTable
       Events:
         TodoList:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -44,6 +48,16 @@ Resources:
             Path: /todos/{id}
             Method: delete
 
+  TodoTable:
+    Type: 'AWS::Serverless::SimpleTable'
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -57,3 +71,7 @@ Outputs:
   TodoServiceFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt TodoServiceFunctionRole.Arn
+  TodoTableArn:
+    Description: "DynamoDB Arn"
+    Value: !GetAtt TodoTable.Arn
+
