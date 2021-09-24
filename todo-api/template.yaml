@@ -12,6 +12,17 @@ Globals:
         TABLE_NAME: !Select [1, !Split ['/', !GetAtt TodoTable.Arn]]
 
 Resources:
+  TodoApi:
+    Type: "AWS::Serverless::Api"
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !GetAtt MyCognitoUserPool.Arn
+
   TodoServiceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -22,31 +33,52 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref TodoTable
       Events:
+
         TodoList:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
+            RestApiId: !Ref TodoApi
             Path: /todos
             Method: get
+            Auth:
+              Authorizer:
+                MyCognitoAuthorizer
         TodoDetail:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
+            RestApiId: !Ref TodoApi
             Path: /todos/{id}
             Method: get
+            Auth:
+              Authorizer:
+                MyCognitoAuthorizer
         TodoCreate:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
+            RestApiId: !Ref TodoApi
             Path: /todos
             Method: post
+            Auth:
+              Authorizer:
+                MyCognitoAuthorizer
         TodoUpdate:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
+            RestApiId: !Ref TodoApi
             Path: /todos/{id}
             Method: put
+            Auth:
+              Authorizer:
+                MyCognitoAuthorizer
         TodoDelete:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
+            RestApiId: !Ref TodoApi
             Path: /todos/{id}
             Method: delete
+            Auth:
+              Authorizer:
+                MyCognitoAuthorizer
 
   TodoTable:
     Type: 'AWS::Serverless::SimpleTable'
@@ -58,13 +90,28 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
 
+  MyCognitoUserPool:
+    Type: "AWS::Cognito::UserPool"
+    Properties:
+      UserPoolName: "TodoUserPool"
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+
+  MyCognitoUserPoolClient:
+    Type: "AWS::Cognito::UserPoolClient"
+    Properties:
+      UserPoolId: !Ref MyCognitoUserPool
+      ClientName: "TodoUserPoolClient"
+      GenerateSecret: false
+
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  TodoServiceApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/todos/"
   TodoServiceFunction:
     Description: "TodoService Lambda Function ARN"
     Value: !GetAtt TodoServiceFunction.Arn
