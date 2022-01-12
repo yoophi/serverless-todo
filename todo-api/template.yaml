@@ -110,6 +110,33 @@ Resources:
       UserPoolId: !Ref MyCognitoUserPool
       ClientName: "TodoUserPoolClient"
       GenerateSecret: false
+      CallbackURLs: 
+        - https://example.com/callback
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - phone
+        - email
+        - openid
+        - profile
+      SupportedIdentityProviders:
+        - COGNITO
+
+  MyCognitoUserPoolDomain: 
+    Type: AWS::Cognito::UserPoolDomain 
+    Properties:
+      UserPoolId: !Ref MyCognitoUserPool 
+      Domain: "todo-api-user-pool-domain"
+
+  MyUserPoolUICustomization: 
+    Type: AWS::Cognito::UserPoolUICustomizationAttachment 
+    Properties: 
+      UserPoolId: !Ref MyCognitoUserPool
+      ClientId: !Ref MyCognitoUserPoolClient 
+
+
 
 Outputs:
   TodoServiceFunction:
