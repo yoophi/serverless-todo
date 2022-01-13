@@ -130,15 +130,35 @@ Resources:
       UserPoolId: !Ref MyCognitoUserPool 
       Domain: "todo-api-user-pool-domain"
 
-  MyUserPoolUICustomization: 
+  MyCognitoUserPoolUICustomization: 
     Type: AWS::Cognito::UserPoolUICustomizationAttachment 
     Properties: 
       UserPoolId: !Ref MyCognitoUserPool
       ClientId: !Ref MyCognitoUserPoolClient 
 
-
+  MyCognitoUserPoolResourceServer: 
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties: 
+      UserPoolId: !Ref MyCognitoUserPool 
+      Identifier: "todo-api" 
+      Name: "Todo API" 
+      Scopes: 
+      - ScopeName: "read_todo" 
+        ScopeDescription: "Read Todos" 
+      - ScopeName: "create_todo"
+        ScopeDescription: "Create Todos"
+      - ScopeName: "update_todo"
+        ScopeDescription: "Update Todos"
+      - ScopeName: "delete_todo"
+        ScopeDescription: "Delete Todos"
 
 Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  TodoServiceApi:
+    Description: "API Gateway endpoint URL for Prod stage for TodoService function"
+    Value: !Sub "https://${TodoApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/todos/"
   TodoServiceFunction:
     Description: "TodoService Lambda Function ARN"
     Value: !GetAtt TodoServiceFunction.Arn
@@ -148,4 +168,6 @@ Outputs:
   TodoTableArn:
     Description: "DynamoDB Arn"
     Value: !GetAtt TodoTable.Arn
-
+  MyCognitoUserPoolURL:
+    Description: "MyCognitoUserPool URL"
+    Value: !GetAtt MyCognitoUserPool.ProviderURL
