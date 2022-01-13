@@ -11,6 +11,12 @@ Globals:
       Variables:
         TABLE_NAME: !Select [1, !Split ['/', !GetAtt TodoTable.Arn]]
 
+Parameters:
+  CognitoUserPoolDomainParameter:
+    Type: String
+    Default: todo-api-user-pool-domain
+    Description: CoginoUserPool Domain Name
+
 Resources:
   TodoApi:
     Type: "AWS::Serverless::Api"
@@ -43,6 +49,8 @@ Resources:
             Auth:
               Authorizer:
                 MyCognitoAuthorizer
+              AuthorizationScopes:
+              - todo-api/read_todo
         TodoDetail:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
@@ -52,6 +60,8 @@ Resources:
             Auth:
               Authorizer:
                 MyCognitoAuthorizer
+              AuthorizationScopes:
+              - todo-api/read_todo
         TodoCreate:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
@@ -61,6 +71,8 @@ Resources:
             Auth:
               Authorizer:
                 MyCognitoAuthorizer
+              AuthorizationScopes:
+              - todo-api/create_todo
         TodoUpdate:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
@@ -70,6 +82,8 @@ Resources:
             Auth:
               Authorizer:
                 MyCognitoAuthorizer
+              AuthorizationScopes:
+              - todo-api/update_todo
         TodoDelete:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
@@ -79,6 +93,8 @@ Resources:
             Auth:
               Authorizer:
                 MyCognitoAuthorizer
+              AuthorizationScopes:
+              - todo-api/delete_todo
 
   TodoTable:
     Type: 'AWS::Serverless::SimpleTable'
@@ -112,6 +128,7 @@ Resources:
       GenerateSecret: false
       CallbackURLs: 
         - https://example.com/callback
+        - http://localhost/callback
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows:
         - code
@@ -121,6 +138,10 @@ Resources:
         - email
         - openid
         - profile
+        - todo-api/create_todo
+        - todo-api/read_todo
+        - todo-api/update_todo
+        - todo-api/delete_todo
       SupportedIdentityProviders:
         - COGNITO
 
@@ -128,7 +149,8 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain 
     Properties:
       UserPoolId: !Ref MyCognitoUserPool 
-      Domain: "todo-api-user-pool-domain"
+      Domain: 
+        Ref: CognitoUserPoolDomainParameter
 
   MyCognitoUserPoolUICustomization: 
     Type: AWS::Cognito::UserPoolUICustomizationAttachment 
@@ -170,4 +192,7 @@ Outputs:
     Value: !GetAtt TodoTable.Arn
   MyCognitoUserPoolURL:
     Description: "MyCognitoUserPool URL"
-    Value: !GetAtt MyCognitoUserPool.ProviderURL
+    Value: !Sub "https://${CognitoUserPoolDomainParameter}.auth.${AWS::Region}.amazoncognito.com"
+  MyCognitoUserPoolClientID:
+    Description: "MyCognitoUserPoolClient client_id"
+    Value: !Ref MyCognitoUserPoolClient
