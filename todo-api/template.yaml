@@ -16,6 +16,10 @@ Parameters:
     Type: String
     Default: todo-api-user-pool-domain
     Description: CoginoUserPool Domain Name
+  TodoTableNameParameter:
+    Type: String
+    Default: todo-data
+    Description: Name of DynamoDB Table
 
 Resources:
   TodoApi:
@@ -105,6 +109,8 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
+      TableName: 
+        Ref: TodoTableNameParameter
 
   MyCognitoUserPool:
     Type: "AWS::Cognito::UserPool"
