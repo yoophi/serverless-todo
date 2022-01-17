@@ -158,12 +158,6 @@ Resources:
       Domain: 
         Ref: CognitoUserPoolDomainParameter
 
-  MyCognitoUserPoolUICustomization: 
-    Type: AWS::Cognito::UserPoolUICustomizationAttachment 
-    Properties: 
-      UserPoolId: !Ref MyCognitoUserPool
-      ClientId: !Ref MyCognitoUserPoolClient 
-
   MyCognitoUserPoolResourceServer: 
     Type: AWS::Cognito::UserPoolResourceServer
     Properties: 
