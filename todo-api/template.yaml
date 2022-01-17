@@ -126,6 +126,22 @@ Resources:
           Name: email
           Required: false
 
+  MyCognitoUserPoolResourceServer: 
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties: 
+      UserPoolId: !Ref MyCognitoUserPool 
+      Identifier: "todo-api" 
+      Name: "Todo API" 
+      Scopes: 
+      - ScopeName: "read_todo" 
+        ScopeDescription: "Read Todos" 
+      - ScopeName: "create_todo"
+        ScopeDescription: "Create Todos"
+      - ScopeName: "update_todo"
+        ScopeDescription: "Update Todos"
+      - ScopeName: "delete_todo"
+        ScopeDescription: "Delete Todos"
+
   MyCognitoUserPoolClient:
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
@@ -150,6 +166,7 @@ Resources:
         - todo-api/delete_todo
       SupportedIdentityProviders:
         - COGNITO
+    DependsOn: MyCognitoUserPoolResourceServer
 
   MyCognitoUserPoolDomain: 
     Type: AWS::Cognito::UserPoolDomain 
@@ -157,22 +174,6 @@ Resources:
       UserPoolId: !Ref MyCognitoUserPool 
       Domain: 
         Ref: CognitoUserPoolDomainParameter
-
-  MyCognitoUserPoolResourceServer: 
-    Type: AWS::Cognito::UserPoolResourceServer
-    Properties: 
-      UserPoolId: !Ref MyCognitoUserPool 
-      Identifier: "todo-api" 
-      Name: "Todo API" 
-      Scopes: 
-      - ScopeName: "read_todo" 
-        ScopeDescription: "Read Todos" 
-      - ScopeName: "create_todo"
-        ScopeDescription: "Create Todos"
-      - ScopeName: "update_todo"
-        ScopeDescription: "Update Todos"
-      - ScopeName: "delete_todo"
-        ScopeDescription: "Delete Todos"
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
