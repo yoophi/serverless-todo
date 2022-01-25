@@ -32,6 +32,8 @@ Resources:
         Authorizers:
           MyCognitoAuthorizer:
             UserPoolArn: !GetAtt MyCognitoUserPool.Arn
+            AddDefaultAuthorizerToCorsPreflight: false
+
 
   TodoServiceFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -150,7 +152,7 @@ Resources:
       GenerateSecret: false
       CallbackURLs: 
         - https://example.com/callback
-        - http://localhost/callback
+        - http://localhost:3000/oauth/callback
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows:
         - code
