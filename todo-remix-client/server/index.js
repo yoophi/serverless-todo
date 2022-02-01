@@ -9,6 +9,14 @@ const BUILD_DIR = path.join(process.cwd(), "server/build");
 
 const app = express();
 app.use(compression());
+app.use(express.json());
+
+app.get("/api/oauth/token", (req, res) => {
+  res.json({
+    env: process.env.NODE_ENV,
+    authorize_endpoint: process.env.OAUTH_AUTHORIZE_ENDPOINT,
+  });
+});
 
 // You may want to be more aggressive with this caching
 app.use(express.static("public", { maxAge: "1h" }));
