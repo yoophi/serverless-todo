@@ -1,41 +1,23 @@
 import axios from "axios";
-import qs from "qs";
 import React, { useEffect } from "react";
-import { LoaderFunction, useLoaderData } from "remix";
-import jwt_decode from "jwt-decode";
-import { useAuth } from "~/contexts/auth";
 import { useNavigate } from "react-router-dom";
+import { LoaderFunction, useLoaderData } from "remix";
+import { useAuth } from "~/contexts/auth";
 
 export let loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let code = url.searchParams.get("code");
 
-  const tokenEndpoint = process.env.OAUTH_TOKEN_ENDPOINT;
-  if (typeof tokenEndpoint !== "string") {
-    return false;
-  }
-
-  const params = qs.stringify({
-    client_id: process.env.OAUTH_CLIENT_ID,
-    grant_type: "authorization_code",
-    code,
-    scope: process.env.OAUTH_SCOPE,
-    redirect_uri: process.env.OAUTH_REDIRECT_URI,
-  });
-  const headers = {
-    "Content-Type": "application/x-www-form-urlencoded",
-  };
-
   try {
-    const resp = await axios.post(tokenEndpoint, params, { headers });
-    const { id_token } = resp.data;
-    const { email } = jwt_decode(id_token) as any;
-    const profile = { email };
+    const resp = await axios.post(`${process.env.BASE_URI}/api/oauth/token`, {
+      grant_type: "authorization_code",
+      code,
+    });
 
-    return { ...resp.data, profile };
+    return resp.data;
   } catch (err) {
-    console.error(err);
-    return false;
+    console.log({ err });
+    return {};
   }
 };
 

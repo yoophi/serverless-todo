@@ -3,6 +3,9 @@ const express = require("express");
 const compression = require("compression");
 const morgan = require("morgan");
 const { createRequestHandler } = require("@remix-run/express");
+const axios = require("axios");
+const qs = require("qs");
+const jwt_decode = require("jwt-decode");
 
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "server/build");
@@ -11,11 +14,35 @@ const app = express();
 app.use(compression());
 app.use(express.json());
 
-app.get("/api/oauth/token", (req, res) => {
-  res.json({
-    env: process.env.NODE_ENV,
-    authorize_endpoint: process.env.OAUTH_AUTHORIZE_ENDPOINT,
+app.post("/api/oauth/token", async (req, res) => {
+  const { code, grant_type } = req.body;
+  const tokenEndpoint = process.env.OAUTH_TOKEN_ENDPOINT;
+  if (typeof tokenEndpoint !== "string") {
+    return false;
+  }
+
+  const params = qs.stringify({
+    client_id: process.env.OAUTH_CLIENT_ID,
+    grant_type,
+    code,
+    scope: process.env.OAUTH_SCOPE,
+    redirect_uri: process.env.OAUTH_REDIRECT_URI,
   });
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+
+  try {
+    const resp = await axios.post(tokenEndpoint, params, { headers });
+    const { id_token } = resp.data;
+    const { email } = jwt_decode(id_token);
+    const profile = { email };
+
+    res.json({ ...resp.data, profile });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: "sever error" });
+  }
 });
 
 // You may want to be more aggressive with this caching
