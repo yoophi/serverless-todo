@@ -58,17 +58,22 @@ export default function App() {
             <li>
               <Link to="/">Home</Link>
             </li>
-            <li>
-              {isSignedIn ? (
-                <>
+            {isSignedIn ? (
+              <>
+                <li>
+                  <Link to="/todos">Todos</Link>
+                </li>
+                <li>
                   <Link to="/oauth/logout">Sign Out</Link>
                   {" | "}
                   <span>{profile?.email}</span>
-                </>
-              ) : (
+                </li>
+              </>
+            ) : (
+              <li>
                 <Link to="/oauth/login">Sign In</Link>
-              )}
-            </li>
+              </li>
+            )}
           </ul>
           <Outlet />
           <ScrollRestoration />
